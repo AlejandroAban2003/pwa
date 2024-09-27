@@ -1,0 +1,92 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  background-color: #000000;
+  color: #ffffff;
+  
+}
+
+#app {
+  padding: 20px;
+}
+
+
+@media all and (display-mode: standalone) {
+  #app {
+    background-color: #5f0000;
+    padding: 30px;
+    color: #ffffff;
+  }
+}
+
+
+#app {
+  padding: 20px;
+  background-color: #220000;
+}
+
+
+
+header {
+  background-color: #ff0000;
+  color: white;
+  padding: 20px;
+}
+
+nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+nav ul li {
+  display: inline;
+  margin: 0 15px;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+}
+
+main {
+  padding: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #ff000088;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #6200ff88;
+}
+
+footer {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  width: 100%;
+  position: relative;
+  bottom: 0;
+}
+.logo {
+  max-width: 150px; 
+  position: absolute; 
+  top: 10px;
+  left: 20px;
+  border-radius: 80px;
+}
+
+.feature-image {
+  max-width: 100%; 
+  height: auto;
+  margin: 20px 0;
+  border-radius: 10px;
+}
