@@ -1,12 +1,20 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path'); // Importar el módulo 'path'
 const app = express();
 
 let events = [];  // Almacenamiento temporal
 
 // Middleware para parsear el cuerpo de las solicitudes
 app.use(bodyParser.json());
+
+// Servir archivos estáticos desde la carpeta 'public'
 app.use(express.static('public'));
+
+// Ruta para servir 'index.html' desde la raíz del proyecto
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // Ruta para obtener todos los eventos (Read)
 app.get('/api/events', (req, res) => {
@@ -41,16 +49,7 @@ app.delete('/api/events/:id', (req, res) => {
 });
 
 // Iniciar el servidor
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Servidor en ejecución en el puerto ${PORT}`);
 });
-
-if ('serviceWorker' in navigator && 'SyncManager' in window) {
-  navigator.serviceWorker.ready.then(registration => {
-    registration.sync.register('sync-events')
-      .then(() => console.log('Sincronización en segundo plano registrada'))
-      .catch(err => console.error('Error al registrar la sincronización:', err));
-  });
-}
-
