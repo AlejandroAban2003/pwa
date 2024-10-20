@@ -3,57 +3,272 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mi PWA Instalable</title>
-  <link rel="stylesheet" href="/styles.css">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#000000">
+  <title>Gestión de Eventos</title>
+  <link rel="stylesheet" href="styles.css"> <!-- Enlace a tu archivo CSS -->
 </head>
-<body;">
+<body>
   <header>
+    <img src="logo.png" alt="Logo" class="logo"> <!-- Reemplaza con tu logotipo -->
     <nav>
       <ul>
         <li><a href="#">Inicio</a></li>
-        <li><a href="#">Servicios</a></li>
-        <li><a href="#">Contacto</a></li>
+        <li><a href="#">Eventos</a></li>
+        <li><a href="#">Contactar</a></li>
       </ul>
     </nav>
-    <img src="/icon-192x192.png" alt="Logotipo" class="logo"> <!-- Logotipo -->
   </header>
-  
-  <h1>Bienvenido a mi PWA</h1>
-  
+
   <div id="app">
-    <!-- Cargar contenido dinamico del cliente -->
-    <div id="install-container"></div>
+    <h1>Gestión de Eventos</h1>
+    <button id="open-modal-btn" class="btn-Modal">Agregar Evento</button>
+
+    <ul id="event-list"></ul>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <form id="event-form">
+          <input type="hidden" id="event-id">
+          <div>
+            <label for="event-title">Título</label><br>
+            <input type="text" id="event-title" required>
+          </div>
+          <div>
+            <label for="event-description">Descripción</label><br>
+            <textarea id="event-description" required></textarea>
+          </div>
+          <div>
+            <label for="event-location">Ubicación</label><br>
+            <input type="text" id="event-location" required>
+          </div>
+          <div>
+            <label for="event-date">Fecha</label><br>
+            <input type="date" id="event-date" required>
+          </div>
+          <div>
+            <label for="event-time">Hora</label><br>
+            <input type="time" id="event-time" required>
+          </div>
+          <button type="submit">Guardar</button>
+        </form>
+      </div>
+    </div>
   </div>
-  
-  <main>
-    <section>
-      <h2>Explora las PWA</h2>
-      <img src="/icon-512x512.png" alt="Imagen descriptiva" class="feature-image"> <!-- Imagen descriptiva -->
-      <p>Esta aplicación es instalable</p>
-      <button id="action-btn">Inicio</button>
-    </section>
-  </main>
 
-  <footer>
-    <p>&copy; Renderizado csr ssr.</p>
-  </footer>
-
-  <!-- Service Worker -->
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then(registration => {
-          console.log('Service Worker registrado:', registration);
-        }).catch(error => {
-          console.log('Error en el registro del Service Worker:', error);
-        });
-      });
-    }
-  </script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const modal = document.getElementById("modal");
+      const openModalBtn = document.getElementById("open-modal-btn");
+      const closeModalBtn = document.querySelector(".close-btn");
+      const eventForm = document.getElementById("event-form");
+      const eventList = document.getElementById("event-list");
+      let events = [];
 
-  <!-- JavaScript principal -->
-  <script src="/app.js"></script>
+      // Función para abrir el modal
+      openModalBtn.addEventListener("click", () => {
+        modal.style.display = "block";
+      });
+
+      // Función para cerrar el modal
+      closeModalBtn.addEventListener("click", () => {
+        modal.style.display = "none";
+        eventForm.reset();
+      });
+
+      // Cerrar el modal al hacer clic fuera de la ventana
+      window.addEventListener("click", (event) => {
+        if (event.target === modal) {
+          modal.style.display = "none";
+          eventForm.reset();
+        }
+      });
+
+      // Función para renderizar la lista de eventos
+      const renderEvents = () => {
+        eventList.innerHTML = "";
+        events.forEach(event => {
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <strong>Nombre del evento:</strong> ${event.title}<br>
+            <strong>Descripción:</strong> ${event.description}<br>
+            <strong>Ubicación:</strong> ${event.location}<br>
+            <strong>Fecha:</strong> ${event.date}<br>
+            <strong>Hora:</strong> ${event.time}<br>
+            <div class="event-actions">
+              <button class="edit-btn" onclick="editEvent('${event.id}')">Editar</button>
+              <button class="delete-btn" onclick="deleteEvent('${event.id}')">Eliminar</button>
+            </div>
+          `;
+          eventList.appendChild(li);
+        });
+      };
+
+      // Función para cargar los eventos desde el servidor
+      function loadEvents() {
+        fetch('/api/events')
+          .then(response => response.json())
+          .then(data => {
+            events = data;  // Asignar eventos al array
+            renderEvents();  // Renderizar los eventos en el DOM
+          })
+          .catch(error => console.error('Error al cargar los eventos:', error));
+      }
+
+      // Función para guardar o editar un evento
+      eventForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const title = document.getElementById("event-title").value;
+        const description = document.getElementById("event-description").value;
+        const location = document.getElementById("event-location").value;
+        const date = document.getElementById("event-date").value;
+        const time = document.getElementById("event-time").value;
+        const eventId = document.getElementById("event-id").value;
+
+        const newEvent = {
+          title,
+          description,
+          location,
+          date,
+          time,
+          id: eventId || new Date().getTime().toString() // Generar ID temporal
+        };
+
+        if (eventId) {
+          // Actualizar un evento existente
+          fetch(`/api/events/${eventId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newEvent)
+          })
+          .then(response => response.json())
+          .then(updatedEvent => {
+            const eventIndex = events.findIndex(ev => ev.id === eventId);
+            events[eventIndex] = updatedEvent;
+            renderEvents();
+          })
+          .catch(error => console.error('Error al actualizar el evento:', error));
+        } else {
+          // Crear un nuevo evento
+          fetch('/api/events', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newEvent)
+          })
+          .then(response => response.json())
+          .then(createdEvent => {
+            events.push(createdEvent);
+            renderEvents();
+            saveEventLocally(createdEvent); // Guardar localmente si hay conexión
+          })
+          .catch(error => {
+            console.error('Error al crear el evento:', error);
+            saveEventLocally(newEvent); // Guardar localmente si hay error
+          });
+        }
+
+        modal.style.display = "none";
+        eventForm.reset();
+      });
+
+      // Función para editar un evento
+      window.editEvent = (id) => {
+        const event = events.find(ev => ev.id === id);
+        document.getElementById("event-title").value = event.title;
+        document.getElementById("event-description").value = event.description;
+        document.getElementById("event-location").value = event.location;
+        document.getElementById("event-date").value = event.date;
+        document.getElementById("event-time").value = event.time;
+        document.getElementById("event-id").value = event.id;
+        modal.style.display = "block";
+      };
+
+      // Función para eliminar un evento
+      window.deleteEvent = (id) => {
+        fetch(`/api/events/${id}`, {
+          method: 'DELETE'
+        })
+        .then(() => {
+          events = events.filter(ev => ev.id !== id);
+          renderEvents();
+        })
+        .catch(error => console.error('Error al eliminar el evento:', error));
+      };
+
+      // Abrir la base de datos de IndexedDB
+      const openDB = () => {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open('eventsDB', 1);
+          request.onupgradeneeded = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains('events')) {
+              db.createObjectStore('events', { keyPath: 'id' });
+            }
+          };
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+      };
+
+      // Guardar un evento localmente en IndexedDB (offline)
+      const saveEventLocally = (event) => {
+        openDB().then(db => {
+          const transaction = db.transaction('events', 'readwrite');
+          const store = transaction.objectStore('events');
+          store.put(event);
+          transaction.oncomplete = () => console.log('Evento guardado localmente');
+        });
+      };
+
+      // Sincronizar eventos locales con el servidor cuando vuelva la conexión
+      const syncLocalEventsWithServer = () => {
+        openDB().then(db => {
+          const transaction = db.transaction('events', 'readonly');
+          const store = transaction.objectStore('events');
+          const getAll = store.getAll();
+
+          getAll.onsuccess = () => {
+            const localEvents = getAll.result;
+            localEvents.forEach(event => {
+              fetch('/api/events', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(event)
+              })
+              .then(response => response.json())
+              .then(() => {
+                console.log('Evento sincronizado con el servidor');
+              })
+              .catch(error => console.error('Error al sincronizar evento:', error));
+            });
+
+            // Limpiar la base de datos local después de sincronizar
+            const clearTransaction = db.transaction('events', 'readwrite');
+            const clearStore = clearTransaction.objectStore('events');
+            clearStore.clear();
+          };
+        });
+      };
+
+      // Escuchar cambios de conexión
+      window.addEventListener('online', () => {
+        console.log('Conexión restablecida');
+        syncLocalEventsWithServer(); // Sincroniza cuando haya conexión
+      });
+
+      window.addEventListener('offline', () => {
+        console.log('Sin conexión. Guardando datos localmente.');
+      });
+
+      // Cargar eventos al cargar la página
+      loadEvents();
+    });
+  </script>
 </body>
 </html>

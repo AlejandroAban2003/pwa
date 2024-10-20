@@ -1,41 +1,61 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const app = document.getElementById('app');
-  
-    // Renderizado dinámico en el cliente
-    app.innerHTML = `<h1>Hola desde el lado del cliente (CSR)</h1>`;
-  });
+const express = require('express');
+const app = express();
 
-  
-  let deferredPrompt;
-  window.addEventListener('beforeinstallprompt', (e) => {
-    console.log('beforeinstallprompt event detected');
-    // Prevenir que el navegador muestre el prompt automáticamente
-    e.preventDefault();
-    deferredPrompt = e;
-  
-    // Crear el botón de instalación
-    const installButton = document.createElement('button');
-    installButton.innerText = 'Instalar PWA';
-    installButton.id = 'install-button';
-  
-    // // Agregar el b
-    // const installContainer = document.getElementById('install-container');
-    // installContainer.appendChild(installButton);
-  
-    // Manejar el evento de clic en el botón
-    installButton.addEventListener('click', () => {
-      // Mostrar el prompt de instalación
-      deferredPrompt.prompt();
-  
-      // Verificar lo que el usuario eligió
-      deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-          console.log('El usuario aceptó instalar la PWA');
-        } else {
-          console.log('El usuario rechazó instalar la PWA');
-        }
-        deferredPrompt = null;  // Reiniciar el prompt
-      });
-    });
-  });
-  
+let tasks = [];  // Arreglo para las tareas
+let events = []; // Arreglo para los eventos
+
+// Middleware para parsear JSON
+app.use(express.json());  // Esto reemplaza body-parser
+app.use(express.static('public'));  // Para servir archivos estáticos
+
+// --- Rutas para tareas (tasks) ---
+// Obtener todas las tareas
+app.get('/api/tasks', (req, res) => {
+  res.json(tasks);
+});
+
+// Crear una nueva tarea
+app.post('/api/tasks', (req, res) => {
+  const newTask = req.body;
+  tasks.push(newTask);
+  res.status(201).json(newTask);
+});
+
+// --- Rutas para eventos (events) ---
+// Obtener todos los eventos
+app.get('/api/events', (req, res) => {
+  res.json(events);
+});
+
+// Crear un nuevo evento
+app.post('/api/events', (req, res) => {
+  const newEvent = req.body;
+  events.push(newEvent);
+  res.status(201).json(newEvent);
+});
+
+// Actualizar un evento
+app.put('/api/events/:id', (req, res) => {
+  const id = req.params.id;
+  const updatedEvent = req.body;
+  const eventIndex = events.findIndex(event => event.id === id);
+
+  if (eventIndex !== -1) {
+    events[eventIndex] = updatedEvent;
+    res.json(updatedEvent);
+  } else {
+    res.status(404).json({ message: 'Evento no encontrado' });
+  }
+});
+
+// Eliminar un evento
+app.delete('/api/events/:id', (req, res) => {
+  const id = req.params.id;
+  events = events.filter(event => event.id !== id);
+  res.status(204).send();
+});
+
+// Iniciar servidor
+app.listen(3001, () => {
+  console.log('Servidor corriendo en http://localhost:3001');
+});

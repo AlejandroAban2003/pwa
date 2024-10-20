@@ -22,3 +22,9 @@ self.addEventListener('install', event => {
   let deferredPrompt;
 
 
+  self.addEventListener('sync', event => {
+    if (event.tag === 'sync-events') {
+      event.waitUntil(syncLocalEventsWithServer()); // Sincroniza los eventos locales con el servidor
+    }
+  });
+  

@@ -1,34 +1,56 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
-const path = require('path');
 
+let events = [];  // Almacenamiento temporal
 
+// Middleware para parsear el cuerpo de las solicitudes
+app.use(bodyParser.json());
 app.use(express.static('public'));
 
-// Ruta principal con SSR
-app.get('/', (req, res) => {
-  const html = `
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Mi PWA con SSR</title>
-      <link rel="stylesheet" href="/styles.css">
-      <link rel="manifest" href="/manifest.json">
-    </head>
-    <body>cl
-      <div id="app">
-        <h1>Hola desde el lado del servidor (SSR)</h1>
-      </div>
-      <script src="/app.js"></script>
-    </body>
-    </html>
-  `;
-  res.send(html);
+// Ruta para obtener todos los eventos (Read)
+app.get('/api/events', (req, res) => {
+  res.json(events);
 });
 
-// Inicia el servidor
-app.listen(3001, () => {
-  console.log('Servidor SSR corriendo en http://localhost:3001');
+// Ruta para crear un nuevo evento (Create)
+app.post('/api/events', (req, res) => {
+  const newEvent = { ...req.body, id: Date.now().toString() };
+  events.push(newEvent);
+  res.status(201).json(newEvent);
 });
+
+// Ruta para actualizar un evento por ID (Update)
+app.put('/api/events/:id', (req, res) => {
+  const id = req.params.id;
+  const updatedEvent = { ...req.body, id };
+  const eventIndex = events.findIndex(ev => ev.id === id);
+  if (eventIndex !== -1) {
+    events[eventIndex] = updatedEvent;
+    res.json(updatedEvent);
+  } else {
+    res.status(404).json({ error: 'Evento no encontrado' });
+  }
+});
+
+// Ruta para eliminar un evento por ID (Delete)
+app.delete('/api/events/:id', (req, res) => {
+  const id = req.params.id;
+  events = events.filter(ev => ev.id !== id);
+  res.status(204).end();
+});
+
+// Iniciar el servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor en ejecución en el puerto ${PORT}`);
+});
+
+if ('serviceWorker' in navigator && 'SyncManager' in window) {
+  navigator.serviceWorker.ready.then(registration => {
+    registration.sync.register('sync-events')
+      .then(() => console.log('Sincronización en segundo plano registrada'))
+      .catch(err => console.error('Error al registrar la sincronización:', err));
+  });
+}
+

@@ -1,92 +1,266 @@
+/* General */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Arial', sans-serif;
   margin: 0;
   padding: 0;
   text-align: center;
-  background-color: #000000;
+  background-color: #1a1a1a;
   color: #ffffff;
-  
+  line-height: 1.6;
 }
 
 #app {
   padding: 20px;
 }
 
-
-@media all and (display-mode: standalone) {
-  #app {
-    background-color: #5f0000;
-    padding: 30px;
-    color: #ffffff;
-  }
-}
-
-
-#app {
-  padding: 20px;
-  background-color: #220000;
-}
-
-
-
+/* Header */
 header {
-  background-color: #ff0000;
-  color: white;
+  background-color: #ff4500;
   padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 nav ul {
   list-style-type: none;
+  margin: 0;
   padding: 0;
+  display: flex;
 }
 
 nav ul li {
-  display: inline;
   margin: 0 15px;
 }
 
 nav ul li a {
   color: white;
   text-decoration: none;
+  font-weight: bold;
+  font-size: 1.1rem;
 }
 
-main {
+nav ul li a:hover {
+  color: #ffc107;
+}
+
+/* Logotipo */
+.logo {
+  max-width: 80px;
+  border-radius: 50%;
+}
+
+/* Modal styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
   padding: 20px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 500px;
 }
 
-button {
+.close-btn {
+  float: right;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Formulario */
+form {
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+form input[type="text"],
+form input[type="date"],
+form input[type="time"],
+form textarea {
+  padding: 10px;
+  font-size: 1rem;
+  margin-bottom: 10px;
+  width: 80%;
+  max-width: 400px;
+  border: none;
+  border-radius: 5px;
+  background-color: #f4f4f4;
+}
+
+form button {
   padding: 10px 20px;
-  font-size: 16px;
-  background-color: #ff000088;
+  font-size: 1rem;
+  background-color: #ff4500;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #6200ff88;
+form button:hover {
+  background-color: #e03a00;
 }
 
-footer {
-  background-color: #333;
-  color: white;
-  padding: 10px;
-  width: 100%;
-  position: relative;
-  bottom: 0;
-}
-.logo {
-  max-width: 150px; 
-  position: absolute; 
-  top: 10px;
-  left: 20px;
-  border-radius: 80px;
-}
-
-.feature-image {
-  max-width: 100%; 
-  height: auto;
+/* Estilos de la lista de eventos */
+ul#event-list {
+  list-style-type: none;
+  padding: 0;
   margin: 20px 0;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+ul#event-list li {
+  background-color: #2c2c2c;
+  margin-bottom: 15px;
+  padding: 20px;
   border-radius: 10px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+  text-align: left;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+ul#event-list li h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #ff6347;
+}
+
+ul#event-list li p {
+  margin: 5px 0;
+}
+
+ul#event-list li span {
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+/* Botones de acción dentro de cada evento */
+ul#event-list li .event-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+ul#event-list li .event-actions button {
+  background-color: #4682b4;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  color: #fff;
+  margin-left: 10px;
+}
+
+ul#event-list li .event-actions button:hover {
+  background-color: #4169e1;
+}
+
+ul#event-list li .event-actions button.delete {
+  background-color: #ff6347;
+}
+
+ul#event-list li .event-actions button.delete:hover {
+  background-color: #ff4500;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  nav ul {
+    flex-direction: column;
+  }
+
+  nav ul li {
+    margin: 10px 0;
+  }
+
+  .logo {
+    margin-bottom: 10px;
+  }
+
+  ul#event-list li {
+    padding: 15px;
+  }
+
+  ul#event-list li h3 {
+    font-size: 1.2rem;
+  }
+
+  ul#event-list li .event-actions button {
+    padding: 8px;
+  }
+
+  form input[type="text"],
+  form input[type="date"],
+  form input[type="time"],
+  form textarea {
+    width: 90%;
+    max-width: none; /* Deshabilitar el ancho máximo en pantallas pequeñas */
+  }
+}
+
+/* Estilos para los botones de acción */
+.event-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end; /* Alinear botones a la derecha */
+}
+
+.edit-btn {
+  background-color: #0cd80f; /* Color del botón de editar */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  margin-left: 10px; /* Espacio entre botones */
+}
+
+.edit-btn:hover {
+  background-color: #4169e1; /* Color al pasar el mouse */
+}
+
+.delete-btn {
+  background-color: #ff6347; /* Color del botón de eliminar */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.delete-btn:hover {
+  background-color: #ff4500; /* Color al pasar el mouse */
+}
+
+.btn-Modal {
+  background-color: #ff4500; /* Color del botón de editar */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  margin-bottom: 20px;
 }
